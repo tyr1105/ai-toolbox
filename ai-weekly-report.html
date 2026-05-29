@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI周报生成器 - 3秒生成专业周报</title>
+<meta name="description" content="免费AI周报生成工具，输入工作内容，3秒生成让老板满意的专业周报">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#f0f4ff,#e8edff,#f0f0ff);min-height:100vh;color:#333}
+.header{background:linear-gradient(135deg,#4f46e5,#2563eb);padding:16px;text-align:center;color:#fff;position:sticky;top:0;z-index:50}
+.header h1{font-size:20px;font-weight:700}
+.header p{font-size:12px;opacity:.9;margin-top:4px}
+.header .settings-btn{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:13px}
+.container{max-width:680px;margin:0 auto;padding:16px}
+.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.05);margin-bottom:16px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#555}
+.form-group input,.form-group textarea{width:100%;padding:10px 14px;border:2px solid #e8e8f0;border-radius:12px;font-size:14px;outline:none;transition:border-color .2s}
+.form-group input:focus,.form-group textarea:focus{border-color:#6366f1}
+.form-group textarea{resize:vertical;min-height:80px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.styles{display:flex;flex-wrap:wrap;gap:6px}
+.sty-btn{padding:6px 14px;border-radius:20px;font-size:13px;cursor:pointer;border:none;background:#f0f0f5;color:#666;transition:all .2s}
+.sty-btn:hover{background:#e0e0ff;color:#4f46e5}
+.sty-btn.active{background:linear-gradient(135deg,#4f46e5,#2563eb);color:#fff}
+.gen-btn{width:100%;padding:14px;border:none;border-radius:24px;font-size:16px;font-weight:600;color:#fff;background:linear-gradient(135deg,#4f46e5,#2563eb);cursor:pointer;box-shadow:0 4px 15px rgba(79,70,229,.3);transition:all .3s;display:flex;align-items:center;justify-content:center;gap:8px}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(79,70,229,.4)}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.result{background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.05);margin-bottom:16px;display:none}
+.result.show{display:block}
+.copy-btn{padding:6px 14px;border-radius:16px;font-size:12px;border:none;background:#f0f0ff;color:#4f46e5;cursor:pointer;transition:all .2s}
+.copy-btn:hover{background:#4f46e5;color:#fff}
+.error{text-align:center;color:#ef4444;background:#fef2f2;border-radius:12px;padding:10px;font-size:13px;margin-top:12px;display:none}
+.features{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px}
+.feat{text-align:center;padding:16px;border-radius:14px;background:rgba(255,255,255,.6)}
+.feat .icon{font-size:24px;margin-bottom:6px}
+.modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.3);backdrop-filter:blur(4px);align-items:center;justify-content:center}
+.modal.show{display:flex}
+.modal-inner{background:#fff;border-radius:20px;padding:24px;margin:16px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.modal-inner h3{font-weight:700;margin-bottom:12px}
+.modal-inner input{width:100%;padding:10px 14px;border:2px solid #e8e8f0;border-radius:12px;font-size:14px;margin-bottom:12px;outline:none}
+.modal-inner input:focus{border-color:#6366f1}
+.modal-inner .save{width:100%;padding:12px;border:none;border-radius:24px;font-size:15px;font-weight:600;color:#fff;background:linear-gradient(135deg,#4f46e5,#2563eb);cursor:pointer}
+.footer{text-align:center;padding:16px;font-size:11px;color:#ccc}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📝 AI周报生成器</h1>
+  <p>输入工作内容，3秒生成专业周报</p>
+  <button class="settings-btn" onclick="toggleModal()">⚙️ 设置</button>
+</div>
+<div class="container">
+  <div class="card">
+    <div class="row">
+      <div class="form-group"><label>👤 姓名</label><input id="name" placeholder="你的名字"></div>
+      <div class="form-group"><label>🏢 部门</label><input id="dept" placeholder="产品部/技术部"></div>
+    </div>
+    <div class="form-group"><label>📋 本周工作 <span style="color:#ef4444">*</span></label><textarea id="items" rows="5" placeholder="随手写的也行：&#10;- 完成了用户登录模块&#10;- 修复了3个bug&#10;- 参加了需求评审会"></textarea></div>
+    <div class="form-group"><label>📅 下周计划</label><textarea id="plan" rows="2" placeholder="继续开发支付模块"></textarea></div>
+    <div class="form-group"><label>🎨 报告风格</label><div class="styles" id="styles"></div></div>
+    <button class="gen-btn" id="genBtn" onclick="generate()">✨ 生成周报</button>
+    <div class="error" id="error"></div>
+  </div>
+  <div class="result" id="result">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="font-size:13px;color:#888">📄 生成的周报</span>
+      <button class="copy-btn" id="copyBtn" onclick="copyReport()">📋 复制全文</button>
+    </div>
+    <div id="reportContent" style="font-size:14px;line-height:1.8;white-space:pre-wrap;color:#333"></div>
+    <button class="gen-btn" onclick="generate()" style="margin-top:16px;background:#fff;color:#4f46e5;border:2px solid #4f46e5;box-shadow:none">🔄 重新生成</button>
+  </div>
+  <div class="features" id="features">
+    <div class="feat"><div class="icon">⚡</div><div class="name">3秒生成</div></div>
+    <div class="feat"><div class="icon">🎯</div><div class="name">4种风格</div></div>
+    <div class="feat"><div class="icon">📋</div><div class="name">一键复制</div></div>
+  </div>
+</div>
+<div class="footer">AI周报生成器 · 免费使用 · Made with ❤️</div>
+<div class="modal" id="modal">
+  <div class="modal-inner">
+    <h3>⚙️ API设置</h3>
+    <p style="font-size:13px;color:#888;margin-bottom:10px">前往 <a href="https://platform.deepseek.com/" target="_blank" style="color:#4f46e5">DeepSeek开放平台</a> 免费获取</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-xxxxxxxx">
+    <button class="save" onclick="saveKey()">保存</button>
+  </div>
+</div>
+<script>
+const STYLES=["简洁专业","详细全面","结果导向","低调务实"];
+const STYLE_DESC={简洁专业:"简洁专业有条理",详细全面:"详细全面有深度",结果导向:"强调成果和影响",低调务实:"低调务实实事求是"};
+let sty="简洁专业",apiKey="";
+apiKey=localStorage.getItem("weekly_key")||"";
+document.getElementById("apiKeyInput").value=apiKey;
+
+const sEl=document.getElementById("styles");
+STYLES.forEach(s=>{
+  const b=document.createElement("button");b.className="sty-btn"+(s===sty?" active":"");b.textContent=s;
+  b.onclick=()=>{sty=s;sEl.querySelectorAll(".sty-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");};
+  sEl.appendChild(b);
+});
+
+function toggleModal(){document.getElementById("modal").classList.toggle("show")}
+function saveKey(){apiKey=document.getElementById("apiKeyInput").value.trim();localStorage.setItem("weekly_key",apiKey);toggleModal()}
+
+async function generate(){
+  const items=document.getElementById("items").value.trim();
+  if(!items) return showError("请填写本周工作内容");
+  if(!apiKey){toggleModal();return showError("请先配置API Key");}
+  const name=document.getElementById("name").value.trim();
+  const dept=document.getElementById("dept").value.trim();
+  const plan=document.getElementById("plan").value.trim();
+  const btn=document.getElementById("genBtn");
+  btn.disabled=true;btn.innerHTML='<span class="spin">⏳</span> 生成中...';
+  hideError();hideResult();
+  try{
+    const res=await fetch("https://api.deepseek.com/chat/completions",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiKey},
+      body:JSON.stringify({
+        model:"deepseek-chat",
+        messages:[
+          {role:"system",content:"你是资深职场周报撰写专家。生成专业周报，结构：本周完成→进行中→下周计划→需要支持。语言专业不冗余。"},
+          {role:"user",content:`姓名:${name||"未填"} 部门:${dept||"未填"} 风格:${STYLE_DESC[sty]}\n\n本周工作:\n${items}\n\n下周计划:\n${plan||"未填"}\n\n直接输出周报正文，不用markdown。`}
+        ],
+        temperature:0.6,max_tokens:2000
+      })
+    });
+    if(!res.ok) throw new Error("API错误: "+res.status);
+    const data=await res.json();
+    const report=data.choices?.[0]?.message?.content||"";
+    document.getElementById("reportContent").textContent=report;
+    showResult();
+  }catch(e){showError(e.message)}
+  finally{btn.disabled=false;btn.innerHTML="✨ 生成周报"}
+}
+function showResult(){document.getElementById("result").classList.add("show");document.getElementById("features").style.display="none"}
+function hideResult(){document.getElementById("result").classList.remove("show")}
+function showError(m){const e=document.getElementById("error");e.textContent=m;e.style.display="block"}
+function hideError(){document.getElementById("error").style.display="none"}
+function copyReport(){
+  const t=document.getElementById("reportContent").textContent;
+  navigator.clipboard.writeText(t).then(()=>{
+    const b=document.getElementById("copyBtn");b.textContent="✅ 已复制";b.style.background="#10b981";b.style.color="#fff";
+    setTimeout(()=>{b.textContent="📋 复制全文";b.style.background="";b.style.color="";},2000);
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小红书AI文案生成器 - 一键生成爆款笔记</title>
+<meta name="description" content="免费AI小红书文案生成工具，10大分类，5种风格，一键生成标题+正文+话题标签">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#fff5f5,#fff0eb,#fff8f0);min-height:100vh;color:#333}
+.header{background:linear-gradient(135deg,#ff2442,#ff8c00);padding:16px;text-align:center;color:#fff;position:sticky;top:0;z-index:50;backdrop-filter:blur(10px)}
+.header h1{font-size:20px;font-weight:700}
+.header p{font-size:12px;opacity:.9;margin-top:4px}
+.header .settings-btn{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:13px}
+.container{max-width:680px;margin:0 auto;padding:16px}
+.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.05);margin-bottom:16px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#555}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 14px;border:2px solid #f0e0e0;border-radius:12px;font-size:14px;outline:none;transition:border-color .2s;background:#fff}
+.form-group input:focus,.form-group textarea:focus{border-color:#ff6b81}
+.form-group textarea{resize:vertical;min-height:80px}
+.cats{display:flex;flex-wrap:wrap;gap:6px}
+.cat-btn{padding:6px 14px;border-radius:20px;font-size:13px;cursor:pointer;border:2px solid transparent;background:#f5f5f5;color:#666;transition:all .2s}
+.cat-btn:hover{background:#fff0f0;color:#ff2442;border-color:#ff6b81}
+.cat-btn.active{background:linear-gradient(135deg,#ff2442,#ff8c00);color:#fff}
+.gen-btn{width:100%;padding:14px;border:none;border-radius:24px;font-size:16px;font-weight:600;color:#fff;background:linear-gradient(135deg,#ff2442,#ff8c00);cursor:pointer;box-shadow:0 4px 15px rgba(255,36,66,.3);transition:all .3s;display:flex;align-items:center;justify-content:center;gap:8px}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,36,66,.4)}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.result{display:none;margin-top:16px}
+.result.show{display:block}
+.result-card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #f0e0e0}
+.result-card h3{font-size:12px;color:#999;margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.result-card .val{font-size:14px;line-height:1.7;white-space:pre-wrap}
+.copy-btn{float:right;padding:4px 12px;border-radius:12px;font-size:11px;border:none;background:#f5f5f5;color:#666;cursor:pointer;transition:all .2s}
+.copy-btn:hover{background:#ff2442;color:#fff}
+.copy-btn.ok{background:#10b981;color:#fff}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{padding:3px 10px;background:#fff0f3;color:#ff2442;border-radius:10px;font-size:12px}
+.error{text-align:center;color:#ff2442;background:#fff0f3;border-radius:12px;padding:10px;font-size:13px;margin-top:12px;display:none}
+.features{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px}
+.feat{text-align:center;padding:16px;border-radius:14px;background:rgba(255,255,255,.6)}
+.feat .icon{font-size:24px;margin-bottom:6px}
+.feat .name{font-size:13px;font-weight:600;color:#555}
+.feat .desc{font-size:11px;color:#999;margin-top:2px}
+.modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.3);backdrop-filter:blur(4px);align-items:center;justify-content:center}
+.modal.show{display:flex}
+.modal-inner{background:#fff;border-radius:20px;padding:24px;margin:16px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.modal-inner h3{font-weight:700;margin-bottom:12px}
+.modal-inner input{width:100%;padding:10px 14px;border:2px solid #f0e0e0;border-radius:12px;font-size:14px;margin-bottom:12px;outline:none}
+.modal-inner input:focus{border-color:#ff6b81}
+.modal-inner .save{width:100%;padding:12px;border:none;border-radius:24px;font-size:15px;font-weight:600;color:#fff;background:linear-gradient(135deg,#ff2442,#ff8c00);cursor:pointer}
+.footer{text-align:center;padding:16px;font-size:11px;color:#ccc;border-top:1px solid #fff0f0}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>✨ 小红书AI文案生成器</h1>
+  <p>输入主题，AI帮你写出吸引人的小红书文案</p>
+  <button class="settings-btn" onclick="toggleModal()">⚙️ 设置</button>
+</div>
+<div class="container">
+  <div class="card">
+    <div class="form-group">
+      <label>📝 笔记主题</label>
+      <input id="topic" placeholder="例如：探店网红咖啡厅 / 三亚5天4晚攻略" maxlength="100">
+    </div>
+    <div class="form-group">
+      <label>🏷️ 分类</label>
+      <div class="cats" id="cats"></div>
+    </div>
+    <div class="form-group">
+      <label>🎨 风格</label>
+      <div class="cats" id="styles"></div>
+    </div>
+    <button class="gen-btn" id="genBtn" onclick="generate()">
+      ✨ 生成文案
+    </button>
+    <div class="error" id="error"></div>
+  </div>
+  <div class="result" id="result">
+    <div class="result-card"><h3>📌 标题 <button class="copy-btn" onclick="copy('title')">复制</button></h3><div class="val" id="resTitle"></div></div>
+    <div class="result-card"><h3>📝 正文 <button class="copy-btn" onclick="copy('content')">复制</button></h3><div class="val" id="resContent"></div></div>
+    <div class="result-card"><h3>#️⃣ 标签 <button class="copy-btn" onclick="copy('tags')">复制</button></h3><div class="tags" id="resTags"></div></div>
+    <div class="result-card"><h3>🖼️ 配图建议</h3><div class="val" id="resCover"></div></div>
+    <button class="gen-btn" onclick="copyAll()" style="background:linear-gradient(135deg,#10b981,#059669);margin-bottom:8px">📋 复制全部文案</button>
+    <button class="gen-btn" onclick="generate()" style="background:#fff;color:#ff2442;border:2px solid #ff2442;box-shadow:none">🔄 换一篇</button>
+  </div>
+  <div class="features" id="features">
+    <div class="feat"><div class="icon">🎯</div><div class="name">10大分类</div><div class="desc">覆盖主流赛道</div></div>
+    <div class="feat"><div class="icon">✍️</div><div class="name">5种风格</div><div class="desc">随心选择</div></div>
+    <div class="feat"><div class="icon">🚀</div><div class="name">纯前端</div><div class="desc">无需服务器</div></div>
+  </div>
+</div>
+<div class="footer">小红书AI文案生成器 · 免费使用 · Made with ❤️</div>
+
+<div class="modal" id="modal">
+  <div class="modal-inner">
+    <h3>⚙️ API设置</h3>
+    <p style="font-size:13px;color:#888;margin-bottom:10px">前往 <a href="https://platform.deepseek.com/" target="_blank" style="color:#ff2442">DeepSeek开放平台</a> 免费获取API Key</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-xxxxxxxx">
+    <button class="save" onclick="saveKey()">保存</button>
+  </div>
+</div>
+
+<script>
+const CATEGORIES = [{id:"美食",e:"🍜"},{id:"旅行",e:"✈️"},{id:"穿搭",e:"👗"},{id:"美妆",e:"💄"},{id:"数码",e:"📱"},{id:"家居",e:"🏠"},{id:"健身",e:"💪"},{id:"育儿",e:"👶"},{id:"职场",e:"💼"},{id:"日常",e:"✨"}];
+const STYLES = ["活泼可爱","专业干货","温柔治愈","搞笑有趣","文艺清新"];
+const STYLE_DESC = {活泼可爱:"语气活泼可爱，多用emoji",专业干货:"专业有条理，干货满满",温柔治愈:"温柔治愈，有情感共鸣",搞笑有趣:"幽默搞笑，网络热梗",文艺清新:"文艺清新，文字优美"};
+let cat="美食", sty="活泼可爱", curResult=null, apiKey="";
+
+// Init
+apiKey = localStorage.getItem("xhs_key")||"";
+document.getElementById("apiKeyInput").value = apiKey;
+
+const catsEl = document.getElementById("cats");
+CATEGORIES.forEach(c => {
+  const b = document.createElement("button");
+  b.className = "cat-btn" + (c.id===cat?" active":"");
+  b.textContent = c.e+" "+c.id;
+  b.onclick = () => { cat=c.id; catsEl.querySelectorAll(".cat-btn").forEach(x=>x.classList.remove("active")); b.classList.add("active"); };
+  catsEl.appendChild(b);
+});
+
+const styEl = document.getElementById("styles");
+STYLES.forEach(s => {
+  const b = document.createElement("button");
+  b.className = "cat-btn" + (s===sty?" active":"");
+  b.textContent = s;
+  b.onclick = () => { sty=s; styEl.querySelectorAll(".cat-btn").forEach(x=>x.classList.remove("active")); b.classList.add("active"); };
+  styEl.appendChild(b);
+});
+
+function toggleModal() { document.getElementById("modal").classList.toggle("show"); }
+function saveKey() { apiKey=document.getElementById("apiKeyInput").value.trim(); localStorage.setItem("xhs_key",apiKey); toggleModal(); }
+
+async function generate() {
+  const topic = document.getElementById("topic").value.trim();
+  if(!topic) return showError("请输入笔记主题");
+  if(!apiKey) { toggleModal(); return showError("请先配置API Key"); }
+  
+  const btn = document.getElementById("genBtn");
+  btn.disabled = true; btn.innerHTML = '<span class="spin">⏳</span> AI创作中...';
+  hideError(); hideResult();
+
+  try {
+    const res = await fetch("https://api.deepseek.com/chat/completions", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiKey},
+      body:JSON.stringify({
+        model:"deepseek-chat",
+        messages:[
+          {role:"system",content:"你是专业小红书文案写手。生成高质量笔记：标题吸引眼球，正文分段清晰，适当emoji，结尾互动引导，5-8个话题标签。"},
+          {role:"user",content:`分类:${cat} 主题:${topic} 风格:${STYLE_DESC[sty]}\n\n请严格按JSON返回：{"title":"标题","content":"正文","tags":["标签1","标签2","标签3","标签4","标签5"],"coverTips":"配图建议"}`}
+        ],
+        temperature:0.8, max_tokens:2000
+      })
+    });
+    if(!res.ok) throw new Error("API错误: "+res.status);
+    const data = await res.json();
+    const c = data.choices?.[0]?.message?.content||"";
+    let p; try { const m=c.match(/\{[\s\S]*\}/); if(m) p=JSON.parse(m[0]); } catch{}
+    if(!p?.title) p={title:topic+"分享",content:c,tags:[cat,topic,"小红书","分享","推荐"],coverTips:"建议清晰实物图"};
+    curResult=p; showResult(p);
+  } catch(e) { showError(e.message); }
+  finally { btn.disabled=false; btn.innerHTML="✨ 生成文案"; }
+}
+
+function showResult(d) {
+  document.getElementById("resTitle").textContent=d.title;
+  document.getElementById("resContent").textContent=d.content;
+  document.getElementById("resTags").innerHTML=d.tags.map(t=>`<span class="tag">#${t}</span>`).join("");
+  document.getElementById("resCover").textContent=d.coverTips||"";
+  document.getElementById("result").classList.add("show");
+  document.getElementById("features").style.display="none";
+}
+function hideResult() { document.getElementById("result").classList.remove("show"); }
+function showError(m) { const e=document.getElementById("error"); e.textContent=m; e.style.display="block"; }
+function hideError() { document.getElementById("error").style.display="none"; }
+function copy(field) {
+  if(!curResult) return;
+  const t = field==="title"?curResult.title:field==="content"?curResult.content:curResult.tags.map(t=>"#"+t).join(" ");
+  navigator.clipboard.writeText(t).then(()=>{
+    const btns=document.querySelectorAll(".copy-btn");
+    btns.forEach(b=>{if(b.onclick.toString().includes(field)){b.textContent="已复制✓";b.classList.add("ok");setTimeout(()=>{b.textContent="复制";b.classList.remove("ok");},2000);}});
+  });
+}
+function copyAll() {
+  if(!curResult) return;
+  const t = curResult.title+"\n\n"+curResult.content+"\n\n"+curResult.tags.map(t=>"#"+t).join(" ");
+  navigator.clipboard.writeText(t).then(()=>{
+    const btn=event.target; btn.textContent="✅ 全部已复制"; setTimeout(()=>{btn.textContent="📋 复制全部文案";},2000);
+  });
+}
+</script>
+</body>
+</html>
