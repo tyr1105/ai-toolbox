@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI英语邮件生成器 - 3秒写好专业英文邮件</title>
+<meta name="description" content="免费AI英语邮件生成工具，输入中文意思自动生成专业英文邮件。支持商务、求职、感谢、投诉等多种场景。">
+<meta name="keywords" content="英语邮件生成器,AI邮件,英文邮件模板,商务英语,英文邮件,AI工具">
+<meta property="og:title" content="AI英语邮件生成器 - 3秒写好专业英文邮件">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📧</text></svg>">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#fefce8,#fef3c7,#fde68a);min-height:100vh;color:#1c1917}
+.header{background:linear-gradient(135deg,#d97706,#ea580c);padding:20px 16px;text-align:center;color:#fff;position:sticky;top:0;z-index:50;box-shadow:0 2px 20px rgba(0,0,0,.15)}
+.header h1{font-size:22px;font-weight:800}
+.header p{font-size:13px;opacity:.9;margin-top:4px}
+.header .settings-btn{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:13px}
+.container{max-width:700px;margin:0 auto;padding:16px}
+.card{background:#fff;border-radius:20px;padding:20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.05)}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#78716c}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:12px 16px;border:2px solid #e7e5e4;border-radius:14px;font-size:14px;outline:none;transition:border-color .2s;background:#fff;color:#1c1917}
+.form-group input::placeholder,.form-group textarea::placeholder{color:#a8a29e}
+.form-group input:focus,.form-group textarea:focus{border-color:#d97706}
+.form-group textarea{resize:vertical;min-height:100px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 16px;border-radius:25px;font-size:13px;cursor:pointer;border:2px solid #e7e5e4;background:#fff;color:#78716c;transition:all .2s;white-space:nowrap}
+.chip:hover{border-color:#d97706;color:#92400e}
+.chip.active{background:linear-gradient(135deg,#d97706,#ea580c);color:#fff;border-color:transparent}
+.gen-btn{width:100%;padding:16px;border:none;border-radius:28px;font-size:17px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d97706,#ea580c);cursor:pointer;box-shadow:0 4px 20px rgba(217,119,6,.3);transition:all .3s;display:flex;align-items:center;justify-content:center;gap:8px}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(217,119,6,.4)}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.result{display:none;margin-top:16px}
+.result.show{display:block}
+.result-card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #e7e5e4}
+.result-card h3{font-size:12px;color:#a8a29e;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.result-card .val{font-size:14px;line-height:1.8;white-space:pre-wrap;color:#1c1917}
+.copy-btn{float:right;padding:4px 12px;border-radius:10px;font-size:11px;border:none;background:#f5f5f4;color:#78716c;cursor:pointer;transition:all .2s}
+.copy-btn:hover{background:#d97706;color:#fff}
+.copy-btn.ok{background:#10b981;color:#fff}
+.error{text-align:center;color:#dc2626;background:#fef2f2;border-radius:12px;padding:10px;font-size:13px;margin-top:12px;display:none}
+.features{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px}
+.feat{text-align:center;padding:16px;border-radius:14px;background:rgba(255,255,255,.6);border:1px solid #e7e5e4}
+.feat .icon{font-size:28px;margin-bottom:8px}
+.feat .name{font-size:13px;font-weight:600;color:#1c1917}
+.feat .desc{font-size:11px;color:#a8a29e;margin-top:2px}
+.modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.3);backdrop-filter:blur(8px);align-items:center;justify-content:center}
+.modal.show{display:flex}
+.modal-inner{background:#fff;border-radius:20px;padding:24px;margin:16px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.1)}
+.modal-inner h3{font-weight:700;margin-bottom:8px}
+.modal-inner p{font-size:12px;color:#a8a29e;margin-bottom:12px}
+.modal-inner input{width:100%;padding:12px 14px;border:2px solid #e7e5e4;border-radius:12px;font-size:14px;margin-bottom:12px;outline:none}
+.modal-inner input:focus{border-color:#d97706}
+.modal-inner .save{width:100%;padding:12px;border:none;border-radius:24px;font-size:15px;font-weight:600;color:#fff;background:linear-gradient(135deg,#d97706,#ea580c);cursor:pointer}
+.footer{text-align:center;padding:20px;font-size:11px;color:#d6d3d1;border-top:1px solid #e7e5e4}
+.footer a{color:#a8a29e;text-decoration:none}
+.promo-banner{background:linear-gradient(135deg,#d97706,#ea580c);border-radius:16px;padding:16px;text-align:center;margin-top:16px}
+.promo-banner h4{color:#fff;font-size:15px;margin-bottom:4px}
+.promo-banner p{color:rgba(255,255,255,.8);font-size:12px}
+.promo-banner a{color:#fff;text-decoration:underline;font-weight:600}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:500px){.features{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📧 AI英语邮件生成器</h1>
+  <p>用中文说你想写什么，AI帮你写专业英文邮件</p>
+  <button class="settings-btn" onclick="toggleModal()">⚙️ API</button>
+</div>
+<div class="container">
+  <div class="card">
+    <div class="form-group">
+      <label>📋 邮件类型</label>
+      <div class="chips" id="types"></div>
+    </div>
+    <div class="form-group">
+      <label>🇨🇳 用中文描述邮件内容</label>
+      <textarea id="content" placeholder="例如：我想给老板发邮件请假3天，因为家人生病需要照顾。语气要礼貌但诚恳。" rows="4"></textarea>
+    </div>
+    <div class="form-group">
+      <label>🎯 语气</label>
+      <select id="tone">
+        <option value="formal">正式</option>
+        <option value="professional" selected>专业</option>
+        <option value="friendly">友好</option>
+        <option value="casual">随意</option>
+        <option value="urgent">紧急</option>
+      </select>
+    </div>
+    <button class="gen-btn" id="genBtn" onclick="generate()">🚀 生成邮件</button>
+    <div class="error" id="error"></div>
+  </div>
+  <div class="result" id="result">
+    <div class="result-card">
+      <h3>📧 Subject <button class="copy-btn" onclick="copy('subject')">复制</button></h3>
+      <div class="val" id="resSubject" style="font-weight:600"></div>
+    </div>
+    <div class="result-card">
+      <h3>📝 Email Body <button class="copy-btn" onclick="copy('body')">复制</button></h3>
+      <div class="val" id="resBody"></div>
+    </div>
+    <div class="result-card">
+      <h3>🇨🇳 中文翻译（供参考）<button class="copy-btn" onclick="copy('translation')">复制</button></h3>
+      <div class="val" id="resTranslation" style="color:#78716c;font-size:13px"></div>
+    </div>
+    <button class="gen-btn" onclick="copyAll()" style="background:linear-gradient(135deg,#10b981,#059669);margin-bottom:10px">📋 复制完整邮件</button>
+    <button class="gen-btn" onclick="generate()" style="background:#fff;color:#d97706;border:2px solid #d97706;box-shadow:none">🔄 换一封</button>
+  </div>
+  <div class="features" id="features">
+    <div class="feat"><div class="icon">⚡</div><div class="name">3秒出邮件</div><div class="desc">中文→英文</div></div>
+    <div class="feat"><div class="icon">🎯</div><div class="name">8种场景</div><div class="desc">覆盖职场</div></div>
+    <div class="feat"><div class="icon">✅</div><div class="name">母语级</div><div class="desc">地道表达</div></div>
+  </div>
+  <div class="promo-banner">
+    <h4>✨ 更多免费AI工具</h4>
+    <p><a href="index.html">短视频脚本 · PPT大纲 · 小红书文案 · AI工具箱</a></p>
+  </div>
+</div>
+<div class="footer">AI英语邮件生成器 · 免费使用 · Made with ❤️</div>
+<div class="modal" id="modal">
+  <div class="modal-inner">
+    <h3>⚙️ API设置</h3>
+    <p>使用DeepSeek API（注册即送500万tokens）<br><a href="https://platform.deepseek.com/" target="_blank" style="color:#d97706">去注册 →</a></p>
+    <input id="keyInput" type="password" placeholder="输入你的DeepSeek API Key">
+    <button class="save" onclick="saveKey()">保存</button>
+  </div>
+</div>
+<script>
+const TYPES=[
+  {id:'request',label:'请求/申请',icon:'📋'},
+  {id:'followup',label:'跟进/催办',icon:'🔄'},
+  {id:'thanks',label:'感谢',icon:'🙏'},
+  {id:'apology',label:'道歉',icon:'🙇'},
+  {id:'complaint',label:'投诉',icon:'😤'},
+  {id:'introduction',label:'自我介绍',icon:'👋'},
+  {id:'invitation',label:'邀请',icon:'💌'},
+  {id:'resignation',label:'辞职',icon:'✌️'},
+];
+const TONE_DESC={formal:'正式（适合对上级、客户、正式场合）',professional:'专业（适合日常工作沟通）',friendly:'友好（适合同事、熟悉的人）',casual:'随意（适合朋友、亲密同事）',urgent:'紧急（强调时间敏感性）'};
+let curType='request',apiKey=localStorage.getItem('ds_key')||'',curResult=null;
+const typesEl=document.getElementById('types');
+TYPES.forEach((t,i)=>{const d=document.createElement('div');d.className='chip'+(i===0?' active':'');d.innerHTML=t.icon+' '+t.label;d.onclick=()=>{document.querySelectorAll('#types .chip').forEach(c=>c.classList.remove('active'));d.classList.add('active');curType=t.id;};typesEl.appendChild(d);});
+function toggleModal(){const m=document.getElementById('modal');m.classList.toggle('show');if(m.classList.contains('show'))document.getElementById('keyInput').value=apiKey;}
+function saveKey(){apiKey=document.getElementById('keyInput').value.trim();localStorage.setItem('ds_key',apiKey);toggleModal();}
+function showError(msg){const e=document.getElementById('error');e.textContent=msg;e.style.display='block';}
+function hideError(){document.getElementById('error').style.display='none';}
+function showResult(r){document.getElementById('resSubject').textContent=r.subject||'';document.getElementById('resBody').textContent=r.body||'';document.getElementById('resTranslation').textContent=r.translation||'';document.getElementById('result').classList.add('show');document.getElementById('features').style.display='none';}
+function hideResult(){document.getElementById('result').classList.remove('show');}
+function copy(field){if(!curResult)return;navigator.clipboard.writeText(curResult[field]||'').then(()=>{event.target.textContent='已复制✓';event.target.classList.add('ok');setTimeout(()=>{event.target.textContent='复制';event.target.classList.remove('ok');},1500);});}
+function copyAll(){if(!curResult)return;navigator.clipboard.writeText('Subject: '+curResult.subject+'\n\n'+curResult.body).then(()=>alert('已复制完整邮件！'));}
+async function generate(){
+  const content=document.getElementById('content').value.trim();
+  if(!content)return showError('请描述邮件内容');
+  if(!apiKey){toggleModal();return showError('请先配置API Key');}
+  const tone=document.getElementById('tone').value,typeObj=TYPES.find(t=>t.id===curType);
+  const btn=document.getElementById('genBtn');btn.disabled=true;btn.innerHTML='<span class="spin">⏳</span> AI写作中...';hideError();hideResult();
+  const sys='You are a professional English email writer. Write clear, concise, native-sounding business emails. Follow email etiquette strictly. Use appropriate greetings and closings.';
+  const usr='Write a professional English email based on:\nType: '+typeObj.label+'\nTone: '+TONE_DESC[tone]+'\nContent: '+content+'\n\nReturn JSON: {"subject":"email subject line","body":"full email body with greeting and closing","translation":"中文翻译供参考"}';
+  try{
+    const res=await fetch('https://api.deepseek.com/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},body:JSON.stringify({model:'deepseek-chat',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.6,max_tokens:1500})});
+    if(!res.ok)throw new Error('API错误: '+res.status);
+    const data=await res.json();const c=data.choices?.[0]?.message?.content||'';let p;
+    try{const m=c.match(/\{[\s\S]*\}/);if(m)p=JSON.parse(m[0]);}catch(e){}
+    if(!p?.subject){p={subject:'Regarding your request',body:c,translation:'（翻译失败，请参考英文原文）'};}
+    curResult=p;showResult(p);
+  }catch(e){showError(e.message);}finally{btn.disabled=false;btn.innerHTML='🚀 生成邮件';}
+}
+</script>
+</body>
+</html>
