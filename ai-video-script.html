@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI短视频脚本生成器 - 一键生成抖音/快手爆款脚本</title>
+<meta name="description" content="免费AI短视频脚本生成工具，支持抖音、快手、视频号等平台。AI自动生成钩子、正文、结尾、拍摄建议，3秒出脚本。">
+<meta name="keywords" content="短视频脚本,抖音脚本生成器,AI脚本,快手脚本,视频脚本模板,短视频创作">
+<meta property="og:title" content="AI短视频脚本生成器 - 3秒生成爆款脚本">
+<meta property="og:description" content="免费AI短视频脚本生成工具，支持抖音、快手、视频号。AI自动生成钩子、正文、结尾、拍摄建议。">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;color:#f0f0f0}
+.header{background:linear-gradient(135deg,#667eea,#764ba2);padding:20px 16px;text-align:center;color:#fff;position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);box-shadow:0 2px 20px rgba(0,0,0,.3)}
+.header h1{font-size:22px;font-weight:800;letter-spacing:1px}
+.header p{font-size:13px;opacity:.9;margin-top:4px}
+.header .settings-btn{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:13px}
+.container{max-width:700px;margin:0 auto;padding:16px}
+.card{background:rgba(255,255,255,.08);backdrop-filter:blur(20px);border-radius:20px;padding:20px;margin-bottom:16px;border:1px solid rgba(255,255,255,.1)}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:rgba(255,255,255,.7)}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.1);border-radius:14px;font-size:14px;outline:none;transition:border-color .2s;background:rgba(255,255,255,.06);color:#f0f0f0}
+.form-group input::placeholder,.form-group textarea::placeholder{color:rgba(255,255,255,.3)}
+.form-group input:focus,.form-group textarea:focus{border-color:#667eea}
+.form-group textarea{resize:vertical;min-height:70px}
+.form-group select{cursor:pointer;-webkit-appearance:none}
+.form-group select option{background:#302b63;color:#f0f0f0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 16px;border-radius:25px;font-size:13px;cursor:pointer;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);transition:all .2s;white-space:nowrap}
+.chip:hover{border-color:#667eea;color:#fff}
+.chip.active{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-color:transparent;box-shadow:0 2px 12px rgba(102,126,234,.4)}
+.row{display:flex;gap:12px}
+.row .form-group{flex:1}
+.gen-btn{width:100%;padding:16px;border:none;border-radius:28px;font-size:17px;font-weight:700;color:#fff;background:linear-gradient(135deg,#667eea,#764ba2);cursor:pointer;box-shadow:0 4px 20px rgba(102,126,234,.4);transition:all .3s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:1px}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(102,126,234,.5)}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.result{display:none;margin-top:16px}
+.result.show{display:block}
+.result-card{background:rgba(255,255,255,.06);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid rgba(255,255,255,.08)}
+.result-card h3{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:8px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:1px}
+.result-card .val{font-size:14px;line-height:1.8;white-space:pre-wrap;color:rgba(255,255,255,.9)}
+.copy-btn{float:right;padding:4px 12px;border-radius:10px;font-size:11px;border:none;background:rgba(255,255,255,.1);color:rgba(255,255,255,.5);cursor:pointer;transition:all .2s}
+.copy-btn:hover{background:#667eea;color:#fff}
+.copy-btn.ok{background:#10b981;color:#fff}
+.error{text-align:center;color:#ff6b6b;background:rgba(255,107,107,.1);border-radius:12px;padding:10px;font-size:13px;margin-top:12px;display:none}
+.hook-card{background:linear-gradient(135deg,rgba(102,126,234,.15),rgba(118,75,162,.15));border-color:rgba(102,126,234,.3)}
+.hook-card .val{font-weight:600;color:#fff}
+.duration-badge{display:inline-block;padding:3px 10px;border-radius:8px;font-size:11px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);margin-left:8px}
+.features{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px}
+.feat{text-align:center;padding:16px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.feat .icon{font-size:28px;margin-bottom:8px}
+.feat .name{font-size:13px;font-weight:600;color:rgba(255,255,255,.8)}
+.feat .desc{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+.modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);align-items:center;justify-content:center}
+.modal.show{display:flex}
+.modal-inner{background:#1a1a2e;border-radius:20px;padding:24px;margin:16px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1)}
+.modal-inner h3{font-weight:700;margin-bottom:8px}
+.modal-inner p{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:12px}
+.modal-inner input{width:100%;padding:12px 14px;border:2px solid rgba(255,255,255,.1);border-radius:12px;font-size:14px;margin-bottom:12px;outline:none;background:rgba(255,255,255,.06);color:#f0f0f0}
+.modal-inner input:focus{border-color:#667eea}
+.modal-inner .save{width:100%;padding:12px;border:none;border-radius:24px;font-size:15px;font-weight:600;color:#fff;background:linear-gradient(135deg,#667eea,#764ba2);cursor:pointer}
+.footer{text-align:center;padding:20px;font-size:11px;color:rgba(255,255,255,.2);border-top:1px solid rgba(255,255,255,.05)}
+.footer a{color:rgba(255,255,255,.3);text-decoration:none}
+.footer a:hover{color:#667eea}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tips-section{margin-top:16px;padding:16px;background:rgba(255,255,255,.04);border-radius:16px;border:1px solid rgba(255,255,255,.06)}
+.tips-section h4{font-size:14px;color:#667eea;margin-bottom:8px}
+.tips-section .val{font-size:13px;color:rgba(255,255,255,.6);line-height:1.6}
+.promo-banner{background:linear-gradient(135deg,#ff9a56,#ff6b6b);border-radius:16px;padding:16px;text-align:center;margin-top:16px}
+.promo-banner h4{color:#fff;font-size:15px;margin-bottom:4px}
+.promo-banner p{color:rgba(255,255,255,.8);font-size:12px}
+.promo-banner a{color:#fff;text-decoration:underline;font-weight:600}
+@media(max-width:500px){.features{grid-template-columns:1fr}.row{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🎬 AI短视频脚本生成器</h1>
+  <p>3秒生成抖音/快手/视频号爆款脚本</p>
+  <button class="settings-btn" onclick="toggleModal()">⚙️ API</button>
+</div>
+<div class="container">
+  <div class="card">
+    <div class="form-group">
+      <label>📌 视频主题</label>
+      <input id="topic" placeholder="例如：3个存钱小技巧 / 为什么你瘦不下来 / 深圳1日游攻略" maxlength="100">
+    </div>
+    <div class="form-group">
+      <label>📂 视频类型</label>
+      <div class="chips" id="types"></div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>⏱️ 时长</label>
+        <select id="duration">
+          <option value="15">15秒 (超短)</option>
+          <option value="30" selected>30秒 (短)</option>
+          <option value="60">60秒 (中)</option>
+          <option value="90">90秒 (长)</option>
+          <option value="180">3分钟 (深度)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>🎯 风格</label>
+        <select id="style">
+          <option value="humor">搞笑幽默</option>
+          <option value="professional">专业干货</option>
+          <option value="emotional">走心感动</option>
+          <option value="suspense">悬疑反转</option>
+          <option value="energetic">元气满满</option>
+          <option value="storytelling">讲故事</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>💡 补充说明（可选）</label>
+      <textarea id="extra" placeholder="例如：目标受众是25-35岁女性 / 要突出性价比 / 加入热门梗" rows="2"></textarea>
+    </div>
+    <button class="gen-btn" id="genBtn" onclick="generate()">🚀 生成脚本</button>
+    <div class="error" id="error"></div>
+  </div>
+  <div class="result" id="result">
+    <div class="result-card hook-card">
+      <h3>🎣 开场钩子（前3秒） <span class="duration-badge">前3秒</span> <button class="copy-btn" onclick="copy('hook')">复制</button></h3>
+      <div class="val" id="resHook"></div>
+    </div>
+    <div class="result-card">
+      <h3>📜 完整脚本 <button class="copy-btn" onclick="copy('script')">复制</button></h3>
+      <div class="val" id="resScript"></div>
+    </div>
+    <div class="result-card">
+      <h3>🎬 拍摄建议 <button class="copy-btn" onclick="copy('shootingTips')">复制</button></h3>
+      <div class="val" id="resShoot"></div>
+    </div>
+    <div class="result-card">
+      <h3>🎵 BGM推荐 <button class="copy-btn" onclick="copy('bgmRecommend')">复制</button></h3>
+      <div class="val" id="resBgm"></div>
+    </div>
+    <div class="result-card">
+      <h3>📝 文案/字幕 <button class="copy-btn" onclick="copy('caption')">复制</button></h3>
+      <div class="val" id="resCaption"></div>
+    </div>
+    <div class="tips-section">
+      <h4>💡 爆款提示</h4>
+      <div class="val" id="resTips"></div>
+    </div>
+    <button class="gen-btn" onclick="copyAll()" style="background:linear-gradient(135deg,#10b981,#059669);margin-bottom:10px">📋 复制全部脚本</button>
+    <button class="gen-btn" onclick="generate()" style="background:rgba(255,255,255,.06);color:#667eea;border:2px solid rgba(102,126,234,.3);box-shadow:none">🔄 换一个脚本</button>
+  </div>
+  <div class="features" id="features">
+    <div class="feat"><div class="icon">⚡</div><div class="name">3秒出脚本</div><div class="desc">AI极速创作</div></div>
+    <div class="feat"><div class="icon">🎯</div><div class="name">12大类型</div><div class="desc">覆盖主流赛道</div></div>
+    <div class="feat"><div class="icon">📱</div><div class="name">全平台</div><div class="desc">抖音快手视频号</div></div>
+  </div>
+  <div class="promo-banner">
+    <h4>✨ 更多免费AI工具</h4>
+    <p><a href="index.html">小红书文案生成器 · AI周报生成器</a></p>
+  </div>
+</div>
+<div class="footer">
+  AI短视频脚本生成器 · 免费使用 · 持续更新<br>
+  <a href="index.html">AI工具箱</a> · Made with ❤️
+</div>
+<div class="modal" id="modal">
+  <div class="modal-inner">
+    <h3>⚙️ API设置</h3>
+    <p>使用DeepSeek API（注册即送500万tokens，够用很久）<br>
+    <a href="https://platform.deepseek.com/" target="_blank" style="color:#667eea">去注册 →</a></p>
+    <input id="keyInput" type="password" placeholder="输入你的DeepSeek API Key">
+    <button class="save" onclick="saveKey()">保存</button>
+  </div>
+</div>
+<script>
+const TYPES=[
+  {id:'knowledge',label:'知识科普',icon:'📚'},
+  {id:'life',label:'生活日常',icon:'🏡'},
+  {id:'food',label:'美食探店',icon:'🍜'},
+  {id:'travel',label:'旅行攻略',icon:'✈️'},
+  {id:'fitness',label:'健身运动',icon:'💪'},
+  {id:'beauty',label:'美妆穿搭',icon:'💄'},
+  {id:'tech',label:'数码科技',icon:'📱'},
+  {id:'emotion',label:'情感心理',icon:'💝'},
+  {id:'finance',label:'理财赚钱',icon:'💰'},
+  {id:'pet',label:'萌宠',icon:'🐱'},
+  {id:'parenting',label:'育儿教育',icon:'👶'},
+  {id:'workplace',label:'职场技能',icon:'💼'},
+];
+const STYLE_DESC={humor:'搞笑幽默，用段子和梗让观众笑',professional:'专业干货，用数据和案例说话',emotional:'走心感动，用故事和金句打动人',suspense:'悬疑反转，用悬念和意外抓住注意力',energetic:'元气满满，用热情和活力感染人',storytelling:'讲故事，用叙事结构引人入胜'};
+let curType='knowledge',apiKey=localStorage.getItem('ds_key')||'',curResult=null;
+const typesEl=document.getElementById('types');
+TYPES.forEach((t,i)=>{const d=document.createElement('div');d.className='chip'+(i===0?' active':'');d.innerHTML=t.icon+' '+t.label;d.onclick=()=>{document.querySelectorAll('#types .chip').forEach(c=>c.classList.remove('active'));d.classList.add('active');curType=t.id;};typesEl.appendChild(d);});
+function toggleModal(){const m=document.getElementById('modal');m.classList.toggle('show');if(m.classList.contains('show'))document.getElementById('keyInput').value=apiKey;}
+function saveKey(){apiKey=document.getElementById('keyInput').value.trim();localStorage.setItem('ds_key',apiKey);toggleModal();}
+function showError(msg){const e=document.getElementById('error');e.textContent=msg;e.style.display='block';}
+function hideError(){document.getElementById('error').style.display='none';}
+function showResult(r){document.getElementById('resHook').textContent=r.hook||'';document.getElementById('resScript').textContent=r.script||'';document.getElementById('resShoot').textContent=r.shootingTips||'';document.getElementById('resBgm').textContent=r.bgmRecommend||'';document.getElementById('resCaption').textContent=r.caption||'';document.getElementById('resTips').textContent=r.viralTips||'';document.getElementById('result').classList.add('show');document.getElementById('features').style.display='none';}
+function hideResult(){document.getElementById('result').classList.remove('show');}
+function copy(field){if(!curResult)return;navigator.clipboard.writeText(curResult[field]||'').then(()=>{event.target.textContent='已复制✓';event.target.classList.add('ok');setTimeout(()=>{event.target.textContent='复制';event.target.classList.remove('ok');},1500);});}
+function copyAll(){if(!curResult)return;const all='【开场钩子】\n'+curResult.hook+'\n\n【完整脚本】\n'+curResult.script+'\n\n【拍摄建议】\n'+curResult.shootingTips+'\n\n【BGM推荐】\n'+curResult.bgmRecommend+'\n\n【文案/字幕】\n'+curResult.caption+'\n\n【爆款提示】\n'+curResult.viralTips;navigator.clipboard.writeText(all).then(()=>alert('已复制全部脚本！'));}
+async function generate(){
+  const topic=document.getElementById('topic').value.trim();
+  if(!topic)return showError('请输入视频主题');
+  if(!apiKey){toggleModal();return showError('请先配置API Key（免费注册即送500万tokens）');}
+  const dur=document.getElementById('duration').value,sty=document.getElementById('style').value,extra=document.getElementById('extra').value.trim(),typeObj=TYPES.find(t=>t.id===curType);
+  const btn=document.getElementById('genBtn');btn.disabled=true;btn.innerHTML='<span class="spin">⏳</span> AI创作中...';hideError();hideResult();
+  const sys='你是顶级短视频脚本编导，擅长创作抖音/快手/视频号爆款脚本。\n核心能力：\n1. 开场3秒钩子必须足够抓人（用数据、反常识、提问、制造冲突等方式）\n2. 脚本节奏紧凑，每5-8秒一个信息点或情绪转折\n3. 结尾必须有强烈的行动号召（点赞/关注/评论）\n4. 语言口语化，避免书面语\n5. 善用emoji和网感表达';
+  const usr='请为以下短视频生成完整脚本：\n\n视频类型：'+typeObj.label+'\n主题：'+topic+'\n时长：'+dur+'秒\n风格：'+STYLE_DESC[sty]+'\n'+(extra?'补充要求：'+extra:'')+'\n\n请严格按以下JSON格式返回：\n{"hook":"开场钩子（前3秒说什么/做什么，要有强烈的吸引力）","script":"完整分镜脚本（按时间线，标注画面+台词+动作）","shootingTips":"拍摄建议（镜头角度、光线、道具、场景选择等3-5条）","bgmRecommend":"BGM推荐（2-3首适合的背景音乐，说明为什么适合）","caption":"发布文案（标题+正文+热门话题标签，可直接复制发布）","viralTips":"爆款运营建议（发布时间、互动引导、评论区运营等3条）"}';
+  try{
+    const res=await fetch('https://api.deepseek.com/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},body:JSON.stringify({model:'deepseek-chat',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.85,max_tokens:3000})});
+    if(!res.ok)throw new Error('API错误: '+res.status);
+    const data=await res.json();const c=data.choices?.[0]?.message?.content||'';let p;
+    try{const m=c.match(/\{[\s\S]*\}/);if(m)p=JSON.parse(m[0]);}catch(e){}
+    if(!p?.hook){p={hook:'今天我要告诉你一个秘密...',script:c,shootingTips:'竖屏拍摄，光线充足，背景简洁',bgmRecommend:'热门卡点音乐',caption:topic+' #短视频 #干货',viralTips:'晚8点发布，评论区引导互动'};}
+    curResult=p;showResult(p);
+  }catch(e){showError(e.message);}finally{btn.disabled=false;btn.innerHTML='🚀 生成脚本';}
+}
+</script>
+</body>
+</html>
