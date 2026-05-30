@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI PPT大纲生成器 - 3秒生成专业PPT大纲</title>
+<meta name="description" content="免费AI PPT大纲生成工具，输入主题自动生成专业PPT大纲，支持多种场景和风格，一键复制到PowerPoint。">
+<meta name="keywords" content="PPT大纲生成器,AI PPT,PPT模板,工作汇报,方案展示,免费AI工具">
+<meta property="og:title" content="AI PPT大纲生成器 - 3秒生成专业PPT大纲">
+<meta property="og:description" content="免费AI PPT大纲生成工具，输入主题自动生成大纲，支持商务/学术/培训等多种场景。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#0a1628,#1a2742,#0d1f3c);min-height:100vh;color:#e8ecf1}
+.header{background:linear-gradient(135deg,#2563eb,#1d4ed8,#3b82f6);padding:20px 16px;text-align:center;color:#fff;position:sticky;top:0;z-index:50;box-shadow:0 2px 20px rgba(0,0,0,.3)}
+.header h1{font-size:22px;font-weight:800}
+.header p{font-size:13px;opacity:.9;margin-top:4px}
+.header .settings-btn{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:13px}
+.container{max-width:700px;margin:0 auto;padding:16px}
+.card{background:rgba(255,255,255,.06);border-radius:20px;padding:20px;margin-bottom:16px;border:1px solid rgba(255,255,255,.08)}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:rgba(255,255,255,.6)}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.08);border-radius:14px;font-size:14px;outline:none;transition:border-color .2s;background:rgba(255,255,255,.04);color:#e8ecf1}
+.form-group input::placeholder,.form-group textarea::placeholder{color:rgba(255,255,255,.25)}
+.form-group input:focus,.form-group textarea:focus{border-color:#2563eb}
+.form-group textarea{resize:vertical;min-height:70px}
+.form-group select{cursor:pointer;-webkit-appearance:none}
+.form-group select option{background:#1a2742;color:#e8ecf1}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 16px;border-radius:25px;font-size:13px;cursor:pointer;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:rgba(255,255,255,.6);transition:all .2s;white-space:nowrap}
+.chip:hover{border-color:#2563eb;color:#fff}
+.chip.active{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-color:transparent}
+.row{display:flex;gap:12px}
+.row .form-group{flex:1}
+.gen-btn{width:100%;padding:16px;border:none;border-radius:28px;font-size:17px;font-weight:700;color:#fff;background:linear-gradient(135deg,#2563eb,#1d4ed8);cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,.3);transition:all .3s;display:flex;align-items:center;justify-content:center;gap:8px}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(37,99,235,.4)}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.result{display:none;margin-top:16px}
+.result.show{display:block}
+.slide-card{background:rgba(255,255,255,.06);border-radius:16px;padding:16px;margin-bottom:10px;border:1px solid rgba(255,255,255,.06);position:relative}
+.slide-num{position:absolute;top:12px;left:12px;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.slide-card h3{font-size:14px;font-weight:600;margin-bottom:6px;margin-left:36px;color:#93c5fd}
+.slide-card .notes{font-size:12px;color:rgba(255,255,255,.4);margin-left:36px;margin-top:4px;font-style:italic}
+.slide-card .points{margin-left:36px;margin-top:6px}
+.slide-card .point{font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;padding-left:16px;position:relative}
+.slide-card .point::before{content:'•';position:absolute;left:0;color:#2563eb}
+.copy-btn{float:right;padding:4px 12px;border-radius:10px;font-size:11px;border:none;background:rgba(255,255,255,.1);color:rgba(255,255,255,.5);cursor:pointer;transition:all .2s}
+.copy-btn:hover{background:#2563eb;color:#fff}
+.copy-btn.ok{background:#10b981;color:#fff}
+.error{text-align:center;color:#f87171;background:rgba(248,113,113,.1);border-radius:12px;padding:10px;font-size:13px;margin-top:12px;display:none}
+.features{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px}
+.feat{text-align:center;padding:16px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
+.feat .icon{font-size:28px;margin-bottom:8px}
+.feat .name{font-size:13px;font-weight:600;color:rgba(255,255,255,.7)}
+.feat .desc{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
+.modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);align-items:center;justify-content:center}
+.modal.show{display:flex}
+.modal-inner{background:#0d1f3c;border-radius:20px;padding:24px;margin:16px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1)}
+.modal-inner h3{font-weight:700;margin-bottom:8px}
+.modal-inner p{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:12px}
+.modal-inner input{width:100%;padding:12px 14px;border:2px solid rgba(255,255,255,.1);border-radius:12px;font-size:14px;margin-bottom:12px;outline:none;background:rgba(255,255,255,.04);color:#e8ecf1}
+.modal-inner input:focus{border-color:#2563eb}
+.modal-inner .save{width:100%;padding:12px;border:none;border-radius:24px;font-size:15px;font-weight:600;color:#fff;background:linear-gradient(135deg,#2563eb,#1d4ed8);cursor:pointer}
+.footer{text-align:center;padding:20px;font-size:11px;color:rgba(255,255,255,.15);border-top:1px solid rgba(255,255,255,.05)}
+.footer a{color:rgba(255,255,255,.25);text-decoration:none}
+.promo-banner{background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:16px;padding:16px;text-align:center;margin-top:16px}
+.promo-banner h4{color:#fff;font-size:15px;margin-bottom:4px}
+.promo-banner p{color:rgba(255,255,255,.8);font-size:12px}
+.promo-banner a{color:#fff;text-decoration:underline;font-weight:600}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:500px){.features{grid-template-columns:1fr}.row{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📊 AI PPT大纲生成器</h1>
+  <p>3秒生成专业PPT大纲，告别加班做PPT</p>
+  <button class="settings-btn" onclick="toggleModal()">⚙️ API</button>
+</div>
+<div class="container">
+  <div class="card">
+    <div class="form-group">
+      <label>📌 PPT主题</label>
+      <input id="topic" placeholder="例如：2024年度工作总结 / 新产品发布会 / 市场分析报告" maxlength="100">
+    </div>
+    <div class="form-group">
+      <label>📂 场景</label>
+      <div class="chips" id="scenes"></div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>🎯 页数</label>
+        <select id="pages">
+          <option value="5">5页 (精简)</option>
+          <option value="10" selected>10页 (标准)</option>
+          <option value="15">15页 (详细)</option>
+          <option value="20">20页 (完整)</option>
+          <option value="30">30页 (深度)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>👥 受众</label>
+        <select id="audience">
+          <option value="executive">高管/老板</option>
+          <option value="team" selected>团队/同事</option>
+          <option value="client">客户/合作伙伴</option>
+          <option value="investor">投资人</option>
+          <option value="public">公众/大众</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>💡 补充说明（可选）</label>
+      <textarea id="extra" placeholder="例如：要突出Q4的业绩增长 / 加入竞品对比 / 强调明年规划" rows="2"></textarea>
+    </div>
+    <button class="gen-btn" id="genBtn" onclick="generate()">🚀 生成PPT大纲</button>
+    <div class="error" id="error"></div>
+  </div>
+  <div class="result" id="result">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h3 style="font-size:16px;color:#93c5fd" id="resTitle"></h3>
+      <div>
+        <button class="copy-btn" onclick="copyAll()" style="padding:6px 14px;font-size:12px">📋 复制全部</button>
+      </div>
+    </div>
+    <div id="slidesContainer"></div>
+    <div class="result-card" style="background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.2);border-radius:16px;padding:16px;margin-top:12px">
+      <h3 style="font-size:13px;color:#93c5fd;margin-bottom:8px">💡 演讲提示</h3>
+      <div class="val" id="resTips" style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.6;white-space:pre-wrap"></div>
+    </div>
+    <button class="gen-btn" onclick="generate()" style="background:rgba(255,255,255,.06);color:#2563eb;border:2px solid rgba(37,99,235,.3);box-shadow:none;margin-top:12px">🔄 换一个大纲</button>
+  </div>
+  <div class="features" id="features">
+    <div class="feat"><div class="icon">⚡</div><div class="name">3秒出大纲</div><div class="desc">AI极速生成</div></div>
+    <div class="feat"><div class="icon">🎯</div><div class="name">8大场景</div><div class="desc">覆盖职场需求</div></div>
+    <div class="feat"><div class="icon">📊</div><div class="name">一键复制</div><div class="desc">直接用</div></div>
+  </div>
+  <div class="promo-banner">
+    <h4>✨ 更多免费AI工具</h4>
+    <p><a href="index.html">短视频脚本 · 小红书文案 · AI周报 · 财经助手</a></p>
+  </div>
+</div>
+<div class="footer">
+  AI PPT大纲生成器 · 免费使用 · 持续更新<br>
+  <a href="index.html">AI工具箱</a> · Made with ❤️
+</div>
+<div class="modal" id="modal">
+  <div class="modal-inner">
+    <h3>⚙️ API设置</h3>
+    <p>使用DeepSeek API（注册即送500万tokens，够用很久）<br>
+    <a href="https://platform.deepseek.com/" target="_blank" style="color:#2563eb">去注册 →</a></p>
+    <input id="keyInput" type="password" placeholder="输入你的DeepSeek API Key">
+    <button class="save" onclick="saveKey()">保存</button>
+  </div>
+</div>
+<script>
+const SCENES=[
+  {id:'report',label:'工作汇报',icon:'📋'},
+  {id:'plan',label:'项目方案',icon:'💡'},
+  {id:'launch',label:'产品发布',icon:'🚀'},
+  {id:'review',label:'年终总结',icon:'📊'},
+  {id:'pitch',label:'商业路演',icon:'💰'},
+  {id:'training',label:'培训课件',icon:'📚'},
+  {id:'analysis',label:'数据分析',icon:'📈'},
+  {id:'strategy',label:'战略规划',icon:'🎯'},
+];
+const AUDIENCE_DESC={executive:'高管/老板（关注结果、ROI、决策建议）',team:'团队/同事（关注流程、协作、执行细节）',client:'客户/合作伙伴（关注价值、案例、服务）',investor:'投资人（关注市场、数据、增长潜力）',public:'公众/大众（通俗易懂、故事驱动）'};
+let curScene='report',apiKey=localStorage.getItem('ds_key')||'',curResult=null;
+const scenesEl=document.getElementById('scenes');
+SCENES.forEach((s,i)=>{const d=document.createElement('div');d.className='chip'+(i===0?' active':'');d.innerHTML=s.icon+' '+s.label;d.onclick=()=>{document.querySelectorAll('#scenes .chip').forEach(c=>c.classList.remove('active'));d.classList.add('active');curScene=s.id;};scenesEl.appendChild(d);});
+function toggleModal(){const m=document.getElementById('modal');m.classList.toggle('show');if(m.classList.contains('show'))document.getElementById('keyInput').value=apiKey;}
+function saveKey(){apiKey=document.getElementById('keyInput').value.trim();localStorage.setItem('ds_key',apiKey);toggleModal();}
+function showError(msg){const e=document.getElementById('error');e.textContent=msg;e.style.display='block';}
+function hideError(){document.getElementById('error').style.display='none';}
+function showResult(r){
+  document.getElementById('resTitle').textContent=r.title||'PPT大纲';
+  const container=document.getElementById('slidesContainer');
+  container.innerHTML='';
+  (r.slides||[]).forEach((s,i)=>{
+    const card=document.createElement('div');card.className='slide-card';
+    let html='<div class="slide-num">'+(i+1)+'</div>';
+    html+='<h3>'+s.title+'</h3>';
+    html+='<div class="points">';
+    (s.points||[]).forEach(p=>{html+='<div class="point">'+p+'</div>';});
+    html+='</div>';
+    if(s.notes)html+='<div class="notes">💬 '+s.notes+'</div>';
+    card.innerHTML=html;container.appendChild(card);
+  });
+  document.getElementById('resTips').textContent=r.tips||'';
+  document.getElementById('result').classList.add('show');
+  document.getElementById('features').style.display='none';
+}
+function hideResult(){document.getElementById('result').classList.remove('show');}
+function copyAll(){
+  if(!curResult)return;
+  let text=curResult.title+'\n\n';
+  (curResult.slides||[]).forEach((s,i)=>{text+='第'+(i+1)+'页: '+s.title+'\n';(s.points||[]).forEach(p=>{text+='  • '+p+'\n';});if(s.notes)text+='  演讲备注: '+s.notes+'\n';text+='\n';});
+  text+='演讲提示: '+curResult.tips;
+  navigator.clipboard.writeText(text).then(()=>alert('已复制全部大纲！'));
+}
+async function generate(){
+  const topic=document.getElementById('topic').value.trim();
+  if(!topic)return showError('请输入PPT主题');
+  if(!apiKey){toggleModal();return showError('请先配置API Key');}
+  const pages=document.getElementById('pages').value,aud=document.getElementById('audience').value,extra=document.getElementById('extra').value.trim(),sceneObj=SCENES.find(s=>s.id===curScene);
+  const btn=document.getElementById('genBtn');btn.disabled=true;btn.innerHTML='<span class="spin">⏳</span> AI生成中...';hideError();hideResult();
+  const sys='你是顶级PPT策划师，擅长制作逻辑清晰、视觉美观的PPT大纲。\n核心原则：\n1. 每页只传达一个核心信息\n2. 标题简洁有力（10字以内最佳）\n3. 要点不超过5个，用关键词而非长句\n4. 开头要有吸引力的封面，结尾要有行动号召\n5. 数据和案例穿插使用，增加说服力';
+  const usr='请为以下PPT生成专业大纲：\n\n主题：'+topic+'\n场景：'+sceneObj.label+'\n页数：'+pages+'页\n受众：'+AUDIENCE_DESC[aud]+'\n'+(extra?'补充：'+extra:'')+'\n\n请严格按以下JSON格式返回：\n{"title":"PPT标题","slides":[{"title":"第1页标题","points":["要点1","要点2","要点3"],"notes":"演讲备注（可选）"},...],"tips":"演讲提示（3条实用建议）"}';
+  try{
+    const res=await fetch('https://api.deepseek.com/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},body:JSON.stringify({model:'deepseek-chat',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.7,max_tokens:3000})});
+    if(!res.ok)throw new Error('API错误: '+res.status);
+    const data=await res.json();const c=data.choices?.[0]?.message?.content||'';let p;
+    try{const m=c.match(/\{[\s\S]*\}/);if(m)p=JSON.parse(m[0]);}catch(e){}
+    if(!p?.slides){p={title:topic,slides:[{title:topic,points:['请参考AI生成的内容']}],tips:'请在PPT中合理排版'};}
+    curResult=p;showResult(p);
+  }catch(e){showError(e.message);}finally{btn.disabled=false;btn.innerHTML='🚀 生成PPT大纲';}
+}
+</script>
+</body>
+</html>
